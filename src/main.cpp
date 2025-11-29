@@ -2,45 +2,14 @@
 #include <GLFW/glfw3.h>
 
 #include <shader.h>
+#include <window.h>
 
-#include <iostream>
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
-constexpr int SCR_WIDTH = 800;
-constexpr int SCR_HEIGHT = 600;
-
 int main() {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    const Window window{900, 720};
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Window", nullptr, nullptr);
-    if (window == nullptr) {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    if (GLFWmonitor* monitor = glfwGetPrimaryMonitor()) {
-        if (const GLFWvidmode* mode = glfwGetVideoMode(monitor)) {
-            const int xPos = (mode -> width - SCR_WIDTH) / 2;
-            const int yPos = (mode -> height - SCR_HEIGHT) / 2;
-            glfwSetWindowPos(window, xPos, yPos);
-        }
-    }
-
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-
-    Shader myShader("shader/shader.vs", "shader/shader.fs");
+    const Shader myShader("shader/shader.vs", "shader/shader.fs");
 
     constexpr float vertices[] = {
         -0.5f, -0.5f, 0.0f,
@@ -70,26 +39,24 @@ int main() {
 
     glBindVertexArray(0);
 
-    while(!glfwWindowShouldClose(window)) {
-        processInput(window);
+    while(!window.shouldClose()) {
+        processInput(window.getNativeWindow());
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
         myShader.use();
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
         glfwPollEvents();
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window.getNativeWindow());
     }
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
     return 0;
 }
 
@@ -97,9 +64,4 @@ void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
 }
