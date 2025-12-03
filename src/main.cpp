@@ -3,6 +3,7 @@
 
 #include <shader.h>
 #include <window.h>
+#include <Mesh.h>
 
 void processInput(GLFWwindow* window);
 
@@ -17,33 +18,11 @@ int main() {
         0.0f,  0.5f, 0.0f
     };
 
-    const std::vector indices = {
+     const std::vector<unsigned int> indices = {
         0, 1, 2
     };
 
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER,
-        static_cast<GLsizeiptr>(vertices.size()) * static_cast<GLsizeiptr>(sizeof(float)),
-        vertices.data(),
-        GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-        static_cast<GLsizeiptr>(indices.size()) * static_cast<GLsizeiptr>(sizeof(unsigned int)),
-        indices.data(),
-        GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void *>(nullptr));
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);
+    const Mesh mesh(vertices, indices);
 
     while(!window.shouldClose()) {
         processInput(window.getNativeWindow());
@@ -52,16 +31,11 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
         
         myShader.use();
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+        mesh.draw();
 
         glfwPollEvents();
         glfwSwapBuffers(window.getNativeWindow());
     }
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 
     return 0;
 }
