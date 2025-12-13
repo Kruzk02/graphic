@@ -52,5 +52,5 @@ void main()
 
     vec3 finalColor = proceduralColor * textureColor;
 
-    fragColor = texture(uTexture, vUV);
+    fragColor = vec4(finalColor, 1.0);
 }
