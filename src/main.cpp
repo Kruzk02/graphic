@@ -13,24 +13,57 @@ void processInput(GLFWwindow* window);
 int main() {
     const Window window{900, 720};
 
+    glEnable(GL_DEPTH_TEST);
+
     const Shader myShader("asset/shader/shader.vs", "asset/shader/shader.fs");
 
     const std::vector vertices = {
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
+        -0.5f,-0.5f,-0.5f,  0.0f,0.0f,
+         0.5f,-0.5f,-0.5f,  1.0f,0.0f,
+         0.5f, 0.5f,-0.5f,  1.0f,1.0f,
+        -0.5f, 0.5f,-0.5f,  0.0f,1.0f,
+
+        -0.5f,-0.5f, 0.5f,  0.0f,0.0f,
+         0.5f,-0.5f, 0.5f,  1.0f,0.0f,
+         0.5f, 0.5f, 0.5f,  1.0f,1.0f,
+        -0.5f, 0.5f, 0.5f,  0.0f,1.0f,
+
+        -0.5f, 0.5f, 0.5f,  1.0f,0.0f,
+        -0.5f, 0.5f,-0.5f,  1.0f,1.0f,
+        -0.5f,-0.5f,-0.5f,  0.0f,1.0f,
+        -0.5f,-0.5f, 0.5f,  0.0f,0.0f,
+
+         0.5f, 0.5f, 0.5f,  1.0f,0.0f,
+         0.5f, 0.5f,-0.5f,  1.0f,1.0f,
+         0.5f,-0.5f,-0.5f,  0.0f,1.0f,
+         0.5f,-0.5f, 0.5f,  0.0f,0.0f,
+
+        -0.5f,-0.5f,-0.5f,  0.0f,1.0f,
+         0.5f,-0.5f,-0.5f,  1.0f,1.0f,
+         0.5f,-0.5f, 0.5f,  1.0f,0.0f,
+        -0.5f,-0.5f, 0.5f,  0.0f,0.0f,
+
+        -0.5f, 0.5f,-0.5f,  0.0f,1.0f,
+         0.5f, 0.5f,-0.5f,  1.0f,1.0f,
+         0.5f, 0.5f, 0.5f,  1.0f,0.0f,
+        -0.5f, 0.5f, 0.5f,  0.0f,0.0f
     };
 
     const std::vector<unsigned int> indices = {
-        0, 1, 2
-    };
+        0,  1,  2,  2,  3,  0,
+        4,  5,  6,  6,  7,  4,
+        8,  9, 10, 10, 11,  8,
+       12, 13, 14, 14, 15, 12,
+       16, 17, 18, 18, 19, 16,
+       20, 21, 22, 22, 23, 20
+   };
 
     const VertexLayout layout {
         {
             {0, 3, GL_FLOAT, GL_FALSE, 0},
             {1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float)}
         },
-        6 * sizeof(float)
+        5 * sizeof(float)
     };
 
     const Mesh mesh(vertices, indices, layout);
@@ -43,14 +76,14 @@ int main() {
     Transform transform;
 
     const glm::mat4 view = glm::lookAt(
-        glm::vec3(0, 0, 1),
+        glm::vec3(0, 0, 3),
         glm::vec3(0, 0, 0),
         glm::vec3(0, 1, 0)
     );
 
     const glm::mat4 projection = glm::perspective(
         glm::radians(60.0f),
-        1080.0f / 920.0f,
+        900 / 720.0f,
         0.1f,
         100.0f
     );
@@ -59,7 +92,7 @@ int main() {
         processInput(window.getNativeWindow());
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         const float deltaTime = getDeltaTime();
         transform.rotation.y += glm::radians(45.0f) * deltaTime;

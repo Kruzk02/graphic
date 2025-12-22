@@ -2,7 +2,7 @@
 
 out vec4 fragColor;
 
-in vec2 vUV;
+in vec2 TexCoord;
 
 uniform float uTime;
 uniform sampler2D uTexture;
@@ -48,7 +48,7 @@ void main()
     float gradient = gl_FragCoord.y / 720.0;
     vec3 proceduralColor = mix(bottomColor, topColor, gradient);
 
-    vec3 textureColor = texture(uTexture, vUV).rgb;
+    vec3 textureColor = texture(uTexture, TexCoord).rgb;
 
     vec3 finalColor = proceduralColor * textureColor;
 
