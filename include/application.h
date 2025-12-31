@@ -1,19 +1,41 @@
 #pragma once
 
+#include "camera.h"
+#include "window.h"
+
 struct AppConfig {
-    int width = 900;
-    int height = 720;
-    const char* shaderVertex = "asset/shader/shader.vs";
-    const char* shaderFragment = "asset/shader/shader.fs";
+    int width;
+    int height;
+    const char* shaderVertex;
+    const char* shaderFragment;
 };
 
 struct MouseState {
-    float lastX = 400.0f;
-    float lastY = 300.0f;
+    float lastX = 0.0f;
+    float lastY = 0.0f;
     bool firstMouse = true;
 };
 
 class Application {
 public:
-    static void run();
+    explicit Application(const AppConfig& config);
+    void run();
+
+private:
+
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
+
+    AppConfig config;
+    MouseState mouseState;
+
+    Window window;
+    Camera camera;
+
+    void updateDeltaTime();
+    void processInput();
+
+    static void mouseCallback(GLFWwindow* window, double xPos, double yPos);
+    static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+
 };
