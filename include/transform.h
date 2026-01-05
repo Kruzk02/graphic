@@ -4,9 +4,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 struct Transform {
-    glm::vec3 position { 0.0f };
-    glm::vec3 rotation { 0.0f };
-    glm::vec3 scale { 1.0f };
+    glm::vec3 position{0.0f}; // World space, units
+    glm::vec3 rotation{0.0f}; // Euler angles in radians(local space)
+    glm::vec3 scale{1.0f}; // local scale
 
     [[nodiscard]] glm::mat4 matrix() const {
         glm::mat4 m(1.0f);
@@ -20,4 +20,19 @@ struct Transform {
         return m;
     }
 
+    [[nodiscard]] glm::vec3 right() const {
+        return glm::normalize(glm::vec3(matrix()[0]));
+    }
+
+    [[nodiscard]] glm::vec3 up() const {
+        return glm::normalize(glm::vec3(matrix()[1]));
+    }
+
+    [[nodiscard]] glm::vec3 forward() const {
+        return -glm::normalize(glm::vec3(matrix()[2]));
+    }
+
+    void reset() {
+        *this = Transform();
+    }
 };
