@@ -98,60 +98,10 @@ void Application::run() {
 
     while (!window.shouldClose()) {
         updateDeltaTime();
-        processInput();
+        processInput(transform);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Move Up
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_8) == GLFW_PRESS) {
-            transform.position += transform.up() * speed * deltaTime;
-        }
-
-        // Move Down
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_2) == GLFW_PRESS) {
-            transform.position -= transform.up() * speed * deltaTime;
-        }
-
-        // Move Left
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_4) == GLFW_PRESS) {
-            transform.position -= transform.right() * speed * deltaTime;
-        }
-
-        // Move Right
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_6) == GLFW_PRESS) {
-            transform.position += transform.right() * speed * deltaTime;
-        }
-
-        // Move forward
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_7) == GLFW_PRESS) {
-            transform.position += transform.forward() * speed * deltaTime;
-        }
-
-        // Move backward
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_9) == GLFW_PRESS) {
-            transform.position -= transform.forward() * speed * deltaTime;
-        }
-
-        // Rotate down
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_1) == GLFW_PRESS) {
-            transform.rotation.x += ROT_SPEED * deltaTime;
-        }
-
-        // Rotate up
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_3) == GLFW_PRESS) {
-            transform.rotation.x -= ROT_SPEED * deltaTime;
-        }
-
-        // Rotate left
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_0) == GLFW_PRESS) {
-            transform.rotation.y -= ROT_SPEED * deltaTime;
-        }
-
-        // Rotate right
-        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_DECIMAL) == GLFW_PRESS) {
-            transform.rotation.y += ROT_SPEED * deltaTime;
-        }
 
         transform.rotation.x = glm::clamp(
             transform.rotation.x,
@@ -184,7 +134,7 @@ void Application::updateDeltaTime() {
     lastFrame = now;
 }
 
-void Application::processInput() {
+void Application::processInput(Transform &transform) {
     auto *w = window.getNativeWindow();
     if (glfwGetKey(w, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(w, true);
@@ -197,6 +147,56 @@ void Application::processInput() {
         camera.processKeyboard(CameraMovement::LEFT, deltaTime);
     if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS)
         camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
+
+    // Move Up
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_8) == GLFW_PRESS) {
+        transform.position += transform.up() * speed * deltaTime;
+    }
+
+    // Move Down
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_2) == GLFW_PRESS) {
+        transform.position -= transform.up() * speed * deltaTime;
+    }
+
+    // Move Left
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_4) == GLFW_PRESS) {
+        transform.position -= transform.right() * speed * deltaTime;
+    }
+
+    // Move Right
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_6) == GLFW_PRESS) {
+        transform.position += transform.right() * speed * deltaTime;
+    }
+
+    // Move forward
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_7) == GLFW_PRESS) {
+        transform.position += transform.forward() * speed * deltaTime;
+    }
+
+    // Move backward
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_9) == GLFW_PRESS) {
+        transform.position -= transform.forward() * speed * deltaTime;
+    }
+
+    // Rotate down
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_1) == GLFW_PRESS) {
+        transform.rotation.x += ROT_SPEED * deltaTime;
+    }
+
+    // Rotate up
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_3) == GLFW_PRESS) {
+        transform.rotation.x -= ROT_SPEED * deltaTime;
+    }
+
+    // Rotate left
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_0) == GLFW_PRESS) {
+        transform.rotation.y -= ROT_SPEED * deltaTime;
+    }
+
+    // Rotate right
+    if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_DECIMAL) == GLFW_PRESS) {
+        transform.rotation.y += ROT_SPEED * deltaTime;
+    }
 }
 
 void Application::mouseCallback(GLFWwindow *window, const double xPos, const double yPos) {
