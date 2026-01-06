@@ -10,18 +10,6 @@ constexpr float ROT_SPEED = glm::radians(90.0f);
 constexpr float NEAR_PLANE = 0.1f;
 constexpr float FAR_PLANE = 100.0f;
 
-glm::vec3 getForward(const Transform &t) {
-    return glm::normalize(glm::vec3(
-        glm::sin(t.rotation.y) * glm::cos(t.rotation.x),
-        glm::sin(t.rotation.x),
-        -glm::cos(t.rotation.y) * glm::cos(t.rotation.x)
-    ));
-}
-
-glm::vec3 getRight(const Transform &t) {
-    return glm::normalize(glm::cross(glm::vec3(0, 1, 0), getForward(t)));
-}
-
 Application::Application(const AppConfig &config)
     : config(config),
       window(config.width, config.height),
