@@ -133,14 +133,24 @@ void Application::run() {
             transform.position -= transform.forward() * speed * deltaTime;
         }
 
-        // Rotate to left
+        // Rotate down
         if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_1) == GLFW_PRESS) {
             transform.rotation.x += ROT_SPEED * deltaTime;
         }
 
-        // Rotate to right
+        // Rotate up
         if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_3) == GLFW_PRESS) {
             transform.rotation.x -= ROT_SPEED * deltaTime;
+        }
+
+        // Rotate left
+        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_0) == GLFW_PRESS) {
+            transform.rotation.y -= ROT_SPEED * deltaTime;
+        }
+
+        // Rotate right
+        if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_DECIMAL) == GLFW_PRESS) {
+            transform.rotation.y += ROT_SPEED * deltaTime;
         }
 
         transform.rotation.x = glm::clamp(
