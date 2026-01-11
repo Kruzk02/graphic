@@ -26,37 +26,44 @@ Application::Application(const AppConfig &config)
 
 void Application::run() {
     const Shader myShader(config.shaderVertex, config.shaderFragment);
+    const Shader lightingShader("asset/shader/lighting.vs", "asset/shader/lighting.fs");
 
-    const std::vector vertices = {
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+    const std::vector<float> vertices = {
+        // ---------- Front face ----------
+        -0.5f,-0.5f, 0.5f,   0,0,1,   0,0,
+         0.5f,-0.5f, 0.5f,   0,0,1,   1,0,
+         0.5f, 0.5f, 0.5f,   0,0,1,   1,1,
+        -0.5f, 0.5f, 0.5f,   0,0,1,   0,1,
 
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+        // ---------- Back face ----------
+         0.5f,-0.5f,-0.5f,   0,0,-1,  0,0,
+        -0.5f,-0.5f,-0.5f,   0,0,-1,  1,0,
+        -0.5f, 0.5f,-0.5f,   0,0,-1,  1,1,
+         0.5f, 0.5f,-0.5f,   0,0,-1,  0,1,
 
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        // ---------- Left face ----------
+        -0.5f,-0.5f,-0.5f,  -1,0,0,   0,0,
+        -0.5f,-0.5f, 0.5f,  -1,0,0,   1,0,
+        -0.5f, 0.5f, 0.5f,  -1,0,0,   1,1,
+        -0.5f, 0.5f,-0.5f,  -1,0,0,   0,1,
 
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        // ---------- Right face ----------
+         0.5f,-0.5f, 0.5f,   1,0,0,   0,0,
+         0.5f,-0.5f,-0.5f,   1,0,0,   1,0,
+         0.5f, 0.5f,-0.5f,   1,0,0,   1,1,
+         0.5f, 0.5f, 0.5f,   1,0,0,   0,1,
 
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        // ---------- Bottom face ----------
+        -0.5f,-0.5f,-0.5f,   0,-1,0,  0,0,
+         0.5f,-0.5f,-0.5f,   0,-1,0,  1,0,
+         0.5f,-0.5f, 0.5f,   0,-1,0,  1,1,
+        -0.5f,-0.5f, 0.5f,   0,-1,0,  0,1,
 
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f
+        // ---------- Top face ----------
+        -0.5f, 0.5f, 0.5f,   0,1,0,   0,0,
+         0.5f, 0.5f, 0.5f,   0,1,0,   1,0,
+         0.5f, 0.5f,-0.5f,   0,1,0,   1,1,
+        -0.5f, 0.5f,-0.5f,   0,1,0,   0,1
     };
 
     const std::vector<unsigned int> indices = {
@@ -70,17 +77,15 @@ void Application::run() {
 
     const VertexLayout layout{
         {
-            {0, 3, GL_FLOAT, GL_FALSE, 0},
-            {1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float)}
+            {0, 3, GL_FLOAT, GL_FALSE, 0}, // position
+            {1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float)}, // normal
+            {2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float)} // texcoord
         },
-        5 * sizeof(float)
+        8 * sizeof(float)
     };
 
     const Mesh mesh{vertices, indices, layout};
     const Texture texture{"asset/wall.jpg"};
-
-    myShader.use();
-    myShader.setInt("uTexture", 0);
 
     Transform transform;
 
@@ -96,17 +101,29 @@ void Application::run() {
             glm::radians(-89.0f),
             glm::radians(89.0f)
         );
+        glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 model = transform.matrix();
+        glm::mat4 projection = glm::perspective(
+            glm::radians(camera.getZoom()),
+            static_cast<float>(config.width) / static_cast<float>(config.height),
+            NEAR_PLANE,
+            FAR_PLANE
+        );
 
         myShader.use();
+        myShader.setInt("uTexture", 0);
+        myShader.setMat4("uModel", model);
+        myShader.setMat4("uView", view);
+        myShader.setMat4("uProjection", projection);
 
-        myShader.setMat4("uModel", transform.matrix());
-        myShader.setMat4("uView", camera.getViewMatrix());
-        myShader.setMat4("uProjection", glm::perspective(
-                             glm::radians(camera.getZoom()),
-                             900.0f / 720.0f,
-                             NEAR_PLANE,
-                             FAR_PLANE
-                         ));
+        lightingShader.use();
+        lightingShader.setInt("diffuseMap", 0);
+        lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        lightingShader.setVec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
+        lightingShader.setVec3("viewPos", camera.getPosition());
+        lightingShader.setMat4("projection", projection);
+        lightingShader.setMat4("view", view);
+        lightingShader.setMat4("model", model);
 
         texture.bind();
         mesh.draw();
