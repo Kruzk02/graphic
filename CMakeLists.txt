@@ -18,6 +18,12 @@ find_package(OpenGL REQUIRED)
 file(GLOB_RECURSE APP_SRC CONFIGURE_DEPENDS src/*.cpp)
 add_executable(graphic ${APP_SRC})
 
+set_target_properties(graphic PROPERTIES
+    CXX_STANDARD 23
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+)
+
 add_custom_command(TARGET graphic POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/asset
