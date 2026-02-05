@@ -11,6 +11,7 @@ target_include_directories(glad_c PUBLIC lib/glad/include)
 # Glfw
 add_subdirectory(lib/glfw)
 add_subdirectory(lib/glm)
+add_subdirectory(lib/assimp)
 
 #Opengl
 find_package(OpenGL REQUIRED)
@@ -40,4 +41,5 @@ target_link_libraries(graphic PRIVATE
         glfw
         OpenGL::GL
         glm::glm
+        assimp
 )
