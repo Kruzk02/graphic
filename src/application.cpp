@@ -25,8 +25,7 @@ Application::Application(const AppConfig &config)
 }
 
 void Application::run() {
-    const Shader myShader(config.shaderVertex, config.shaderFragment);
-    const Shader lightingShader("asset/shader/lighting.vs", "asset/shader/lighting.fs");
+    const Shader lightingShader(config.shaderVertex, config.shaderFragment);
 
     const std::vector<float> vertices = {
         // ---------- Front face ----------
@@ -109,12 +108,6 @@ void Application::run() {
             NEAR_PLANE,
             FAR_PLANE
         );
-
-        myShader.use();
-        myShader.setInt("uTexture", 0);
-        myShader.setMat4("uModel", model);
-        myShader.setMat4("uView", view);
-        myShader.setMat4("uProjection", projection);
 
         lightingShader.use();
         lightingShader.setInt("diffuseMap", 0);
