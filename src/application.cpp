@@ -13,7 +13,7 @@ constexpr float FAR_PLANE = 100.0f;
 Application::Application(const AppConfig &config)
     : config(config),
       window(config.width, config.height),
-      camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f)) {
+      camera(glm::vec3(0.0f, 0.5f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f)) {
     auto *nativeWindow = window.getNativeWindow();
 
     glfwSetWindowUserPointer(nativeWindow, this);
@@ -84,9 +84,33 @@ void Application::run() {
     };
 
     const Mesh mesh{vertices, indices, layout};
+
+    const std::vector<float> gridVertices = {
+        -1000, 0, -1000,
+         1000, 0, -1000,
+         1000, 0,  1000,
+        -1000, 0,  1000
+    };
+
+    const std::vector<unsigned int> gridIndices = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    const VertexLayout gridLayout(
+        {
+            {0, 3, GL_FLOAT, GL_FALSE, 0}
+        },
+        3 * sizeof(float)
+    );
+
+    Mesh gridMesh{gridVertices, gridIndices, gridLayout};
+    Shader gridShader("asset/shader/grid.vs", "asset/shader/grid.fs");
+
     const Texture texture{"asset/wall.jpg"};
 
     Transform transform;
+    transform.position.y = 0.5f;
 
     while (!window.shouldClose()) {
         updateDeltaTime();
@@ -108,6 +132,10 @@ void Application::run() {
             NEAR_PLANE,
             FAR_PLANE
         );
+
+        gridShader.use();
+        gridShader.setMat4("MVP", projection * view * glm::mat4(1.0f));
+        gridMesh.draw();
 
         lightingShader.use();
         lightingShader.setInt("diffuseMap", 0);
