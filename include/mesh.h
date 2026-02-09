@@ -54,6 +54,32 @@ public:
         glDeleteBuffers(1, &VBO);
         glDeleteBuffers(1, &EBO);
     }
+
+    Mesh(const Mesh&) = delete;
+    Mesh& operator=(const Mesh&) = delete;
+
+    Mesh(Mesh&& other) noexcept {
+        VAO = other.VAO;
+        VBO = other.VBO;
+        EBO = other.EBO;
+        indexCount = other.indexCount;
+        other.VAO = other.VBO = other.EBO = 0;
+    }
+
+    Mesh& operator=(Mesh&& other) noexcept {
+        if (this != &other) {
+            glDeleteVertexArrays(1, &VAO);
+            glDeleteBuffers(1, &VBO);
+            glDeleteBuffers(1, &EBO);
+
+            VAO = other.VAO;
+            VBO = other.VBO;
+            EBO = other.EBO;
+            indexCount = other.indexCount;
+            other.VAO = other.VBO = other.EBO = 0;
+        }
+        return *this;
+    }
 private:
     GLuint VAO = 0, VBO = 0, EBO = 0;
     size_t indexCount = 0;
