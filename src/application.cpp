@@ -22,6 +22,7 @@ Application::Application(const AppConfig &config)
     glfwSetInputMode(nativeWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_FRAMEBUFFER_SRGB);
 }
 
 void Application::run() {
