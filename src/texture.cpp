@@ -21,7 +21,7 @@ Texture::Texture(const std::string &path, bool flip) {
         throw std::runtime_error("failed to load texture: " + path);
     }
 
-    GLenum format;
+    GLint format;
     switch (channels) {
         case 1: format = GL_RED; break;
         case 3: format = GL_RGB; break;
@@ -30,7 +30,7 @@ Texture::Texture(const std::string &path, bool flip) {
             throw std::runtime_error("Unsupported channel count: " + std::to_string(channels));
     }
         
-    GLenum internalFormat = format;
+    GLint internalFormat = format;
     if (format == GL_RGB)  internalFormat = GL_SRGB;
     if (format == GL_RGBA) internalFormat = GL_SRGB_ALPHA;
 
