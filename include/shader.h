@@ -16,7 +16,7 @@ class Shader {
     mutable std::unordered_map<std::string, int> uniformCache;
 
     int getUniformLocation(const std::string &name) const {
-        if (uniformCache.find(name) != uniformCache.end()) {
+        if (uniformCache.contains(name)) {
             return uniformCache[name];
         }
 
