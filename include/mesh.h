@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <vector>
 
 #include "glad/glad.h"
@@ -12,21 +13,49 @@ struct Vertex {
     glm::vec3 Normal;
     glm::vec2 TexCoord;
     glm::vec3 Tangent;
-    glm::vec2 BiTangent;
+    glm::vec3 BiTangent;
     int mBoneIds[MAX_BONE_INFLUENCE];
     float mWeights[MAX_BONE_INFLUENCE];
 };
 
 class Mesh {
 public:
-    Mesh(std::vector<Vertex> vertices,
-         std::vector<unsigned int> indices,
+    Mesh(const std::vector<Vertex> &vertices,
+         const std::vector<unsigned int> &indices,
          const VertexLayout &layout)
-        : indexCount(indices.size()),
-          vertices(std::move(vertices)),
-          indices(std::move(indices)) {
+        : indexCount(indices.size()) {
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        glGenBuffers(1, &EBO);
 
-        setupMesh(layout);
+        glBindVertexArray(VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER,
+            static_cast<GLsizeiptr>(vertices.size()) * static_cast<GLsizeiptr>(sizeof(Vertex)),
+            vertices.data(),
+            GL_STATIC_DRAW);
+
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     static_cast<GLsizeiptr>(indices.size()) * static_cast<GLsizeiptr>(sizeof(unsigned)),
+                     indices.data(),
+                     GL_STATIC_DRAW);
+
+        for (const auto &[index, count, type, normalized, offset]: layout.attributes) {
+            glEnableVertexAttribArray(index);
+            glVertexAttribPointer(
+                index,
+                count,
+                type,
+                normalized,
+                layout.stride,
+                reinterpret_cast<void *>(offset)
+            );
+        }
+
+        glBindVertexArray(0);
     }
 
     void draw(const GLenum mode = GL_TRIANGLES) const {
@@ -71,40 +100,4 @@ public:
 private:
     GLuint VAO = 0, VBO = 0, EBO = 0;
     size_t indexCount = 0;
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-
-    void setupMesh(const VertexLayout &layout) {
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
-
-        glBindVertexArray(VAO);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER,
-                     static_cast<GLsizeiptr>(vertices.size()) * static_cast<GLsizeiptr>(sizeof(float)),
-                     vertices.data(),
-                     GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     static_cast<GLsizeiptr>(indices.size()) * static_cast<GLsizeiptr>(sizeof(unsigned)),
-                     indices.data(),
-                     GL_STATIC_DRAW);
-
-        for (const auto &[index, count, type, normalized, offset]: layout.attributes) {
-            glEnableVertexAttribArray(index);
-            glVertexAttribPointer(
-                index,
-                count,
-                type,
-                normalized,
-                layout.stride,
-                reinterpret_cast<void *>(offset)
-            );
-        }
-
-        glBindVertexArray(0);
-    }
 };

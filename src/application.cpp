@@ -30,41 +30,75 @@ void Application::run() {
 
     const std::vector<float> vertices = {
         // ---------- Front face ----------
-        -0.5f,-0.5f, 0.5f,   0,0,1,   0,0,
-         0.5f,-0.5f, 0.5f,   0,0,1,   1,0,
-         0.5f, 0.5f, 0.5f,   0,0,1,   1,1,
-        -0.5f, 0.5f, 0.5f,   0,0,1,   0,1,
+        -0.5f, -0.5f, 0.5f, 0, 0, 1, 0, 0,
+        0.5f, -0.5f, 0.5f, 0, 0, 1, 1, 0,
+        0.5f, 0.5f, 0.5f, 0, 0, 1, 1, 1,
+        -0.5f, 0.5f, 0.5f, 0, 0, 1, 0, 1,
 
         // ---------- Back face ----------
-         0.5f,-0.5f,-0.5f,   0,0,-1,  0,0,
-        -0.5f,-0.5f,-0.5f,   0,0,-1,  1,0,
-        -0.5f, 0.5f,-0.5f,   0,0,-1,  1,1,
-         0.5f, 0.5f,-0.5f,   0,0,-1,  0,1,
+        0.5f, -0.5f, -0.5f, 0, 0, -1, 0, 0,
+        -0.5f, -0.5f, -0.5f, 0, 0, -1, 1, 0,
+        -0.5f, 0.5f, -0.5f, 0, 0, -1, 1, 1,
+        0.5f, 0.5f, -0.5f, 0, 0, -1, 0, 1,
 
         // ---------- Left face ----------
-        -0.5f,-0.5f,-0.5f,  -1,0,0,   0,0,
-        -0.5f,-0.5f, 0.5f,  -1,0,0,   1,0,
-        -0.5f, 0.5f, 0.5f,  -1,0,0,   1,1,
-        -0.5f, 0.5f,-0.5f,  -1,0,0,   0,1,
+        -0.5f, -0.5f, -0.5f, -1, 0, 0, 0, 0,
+        -0.5f, -0.5f, 0.5f, -1, 0, 0, 1, 0,
+        -0.5f, 0.5f, 0.5f, -1, 0, 0, 1, 1,
+        -0.5f, 0.5f, -0.5f, -1, 0, 0, 0, 1,
 
         // ---------- Right face ----------
-         0.5f,-0.5f, 0.5f,   1,0,0,   0,0,
-         0.5f,-0.5f,-0.5f,   1,0,0,   1,0,
-         0.5f, 0.5f,-0.5f,   1,0,0,   1,1,
-         0.5f, 0.5f, 0.5f,   1,0,0,   0,1,
+        0.5f, -0.5f, 0.5f, 1, 0, 0, 0, 0,
+        0.5f, -0.5f, -0.5f, 1, 0, 0, 1, 0,
+        0.5f, 0.5f, -0.5f, 1, 0, 0, 1, 1,
+        0.5f, 0.5f, 0.5f, 1, 0, 0, 0, 1,
 
         // ---------- Bottom face ----------
-        -0.5f,-0.5f,-0.5f,   0,-1,0,  0,0,
-         0.5f,-0.5f,-0.5f,   0,-1,0,  1,0,
-         0.5f,-0.5f, 0.5f,   0,-1,0,  1,1,
-        -0.5f,-0.5f, 0.5f,   0,-1,0,  0,1,
+        -0.5f, -0.5f, -0.5f, 0, -1, 0, 0, 0,
+        0.5f, -0.5f, -0.5f, 0, -1, 0, 1, 0,
+        0.5f, -0.5f, 0.5f, 0, -1, 0, 1, 1,
+        -0.5f, -0.5f, 0.5f, 0, -1, 0, 0, 1,
 
         // ---------- Top face ----------
-        -0.5f, 0.5f, 0.5f,   0,1,0,   0,0,
-         0.5f, 0.5f, 0.5f,   0,1,0,   1,0,
-         0.5f, 0.5f,-0.5f,   0,1,0,   1,1,
-        -0.5f, 0.5f,-0.5f,   0,1,0,   0,1
+        -0.5f, 0.5f, 0.5f, 0, 1, 0, 0, 0,
+        0.5f, 0.5f, 0.5f, 0, 1, 0, 1, 0,
+        0.5f, 0.5f, -0.5f, 0, 1, 0, 1, 1,
+        -0.5f, 0.5f, -0.5f, 0, 1, 0, 0, 1
     };
+
+    std::vector<Vertex> verticesOut;
+
+    for (size_t i = 0; i < vertices.size(); i += 8) {
+        Vertex v{};
+
+        v.Position = glm::vec3(
+            vertices[i + 0],
+            vertices[i + 1],
+            vertices[i + 2]
+        );
+
+        v.Normal = glm::vec3(
+            vertices[i + 3],
+            vertices[i + 4],
+            vertices[i + 5]
+        );
+
+        v.TexCoord = glm::vec2(
+            vertices[i + 6],
+            vertices[i + 7]
+        );
+
+        // Optional / default values
+        v.Tangent = glm::vec3(0.0f);
+        v.BiTangent = glm::vec3(0.0f);
+
+        for (int j = 0; j < MAX_BONE_INFLUENCE; j++) {
+            v.mBoneIds[j] = -1;
+            v.mWeights[j] = 0.0f;
+        }
+
+        verticesOut.push_back(v);
+    }
 
     const std::vector<unsigned int> indices = {
         0, 1, 2, 2, 3, 0,
@@ -77,21 +111,47 @@ void Application::run() {
 
     const VertexLayout layout{
         {
-            {0, 3, GL_FLOAT, GL_FALSE, 0}, // position
-            {1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float)}, // normal
-            {2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float)} // texcoord
+            {
+                {0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position)},
+                {1, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal)},
+                {2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoord)}
+            },
         },
-        8 * sizeof(float)
+        sizeof(Vertex)
     };
 
-    const Mesh mesh{vertices, indices, layout};
+    const Mesh mesh{verticesOut, indices, layout};
 
     const std::vector<float> gridVertices = {
         -1000, 0, -1000,
-         1000, 0, -1000,
-         1000, 0,  1000,
-        -1000, 0,  1000
+        1000, 0, -1000,
+        1000, 0, 1000,
+        -1000, 0, 1000
     };
+
+    std::vector<Vertex> gridOut;
+    for (size_t i = 0; i < gridVertices.size(); i += 3) {
+        Vertex v{};
+
+        v.Position = glm::vec3(
+            gridVertices[i + 0],
+            gridVertices[i + 1],
+            gridVertices[i + 2]
+        );
+
+        // Defaults for missing attributes
+        v.Normal = glm::vec3(0.0f, 1.0f, 0.0f); // up
+        v.TexCoord = glm::vec2(0.0f);
+        v.Tangent = glm::vec3(0.0f);
+        v.BiTangent = glm::vec3(0.0f);
+
+        for (int j = 0; j < MAX_BONE_INFLUENCE; j++) {
+            v.mBoneIds[j] = -1;
+            v.mWeights[j] = 0.0f;
+        }
+
+        gridOut.push_back(v);
+    }
 
     const std::vector<unsigned int> gridIndices = {
         0, 1, 2,
@@ -100,12 +160,12 @@ void Application::run() {
 
     const VertexLayout gridLayout(
         {
-            {0, 3, GL_FLOAT, GL_FALSE, 0}
+            {0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position)}
         },
-        3 * sizeof(float)
+        sizeof(Vertex)
     );
 
-    Mesh gridMesh{gridVertices, gridIndices, gridLayout};
+    Mesh gridMesh{gridOut, gridIndices, gridLayout};
     Shader gridShader("asset/shader/grid.vs", "asset/shader/grid.fs");
 
     const Texture texture{"asset/wall.jpg"};
