@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 #include <vector>
 
 #include "glad/glad.h"
@@ -45,14 +44,11 @@ public:
 
         for (const auto &[index, count, type, normalized, offset]: layout.attributes) {
             glEnableVertexAttribArray(index);
-            glVertexAttribPointer(
-                index,
-                count,
-                type,
-                normalized,
-                layout.stride,
-                reinterpret_cast<void *>(offset)
-            );
+            if (type == GL_INT || type == GL_UNSIGNED_INT) {
+                glVertexAttribIPointer(index, count, type, layout.stride, reinterpret_cast<void *>(offset));
+            } else {
+                glVertexAttribPointer(index, count, type, normalized, layout.stride, reinterpret_cast<void *>(offset));
+            }
         }
 
         glBindVertexArray(0);
