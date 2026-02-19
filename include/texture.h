@@ -4,16 +4,24 @@
 
 #include "glad/glad.h"
 
+enum class TextureType {
+    Diffuse,
+    Normal,
+    Specular,
+    Roughness,
+    Metallic,
+    AO
+};
+
 class Texture {
 public:
-    explicit Texture(const std::string &path, bool flip = false);
+    explicit Texture(const std::string &path, TextureType type, bool flip = false);
     ~Texture();
 
     Texture(const Texture &) = delete;
     Texture &operator=(const Texture &) = delete;
 
-    Texture(Texture&& other) noexcept {
-        id = other.id;
+    Texture(Texture&& other) noexcept : id(other.id), type(other.type) {
         other.id = 0;
     }
 
@@ -21,6 +29,7 @@ public:
         if (this != &other) {
             glDeleteTextures(1, &id);
             id = other.id;
+            type = other.type;
             other.id = 0;
         }
         return *this;
@@ -30,4 +39,5 @@ public:
     [[nodiscard]] GLuint getId() const { return id; }
 private:
     GLuint id = 0;
+    TextureType type;
 };

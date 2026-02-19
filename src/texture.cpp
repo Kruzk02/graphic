@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-Texture::Texture(const std::string &path, bool flip) {
+Texture::Texture(const std::string &path, const TextureType type, bool flip) : type(type) {
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
 
@@ -23,15 +23,18 @@ Texture::Texture(const std::string &path, bool flip) {
 
     GLint format;
     switch (channels) {
-        case 1: format = GL_RED; break;
-        case 3: format = GL_RGB; break;
-        case 4: format = GL_RGBA; break;
+        case 1: format = GL_RED;
+            break;
+        case 3: format = GL_RGB;
+            break;
+        case 4: format = GL_RGBA;
+            break;
         default:
             throw std::runtime_error("Unsupported channel count: " + std::to_string(channels));
     }
-        
+
     GLint internalFormat = format;
-    if (format == GL_RGB)  internalFormat = GL_SRGB;
+    if (format == GL_RGB) internalFormat = GL_SRGB;
     if (format == GL_RGBA) internalFormat = GL_SRGB_ALPHA;
 
     glBindTexture(GL_TEXTURE_2D, id);
