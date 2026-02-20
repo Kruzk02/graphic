@@ -18,6 +18,10 @@ public:
         }
     }
 
+    void addTexture(MaterialTexture&& material_texture) {
+        textures.push_back(std::move(material_texture));
+    }
+
 private:
     std::vector<MaterialTexture> textures;
 };
