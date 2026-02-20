@@ -17,7 +17,8 @@ add_subdirectory(lib/assimp)
 find_package(OpenGL REQUIRED)
 
 file(GLOB_RECURSE APP_SRC CONFIGURE_DEPENDS src/*.cpp)
-add_executable(graphic ${APP_SRC})
+add_executable(graphic ${APP_SRC}
+        include/material.h)
 
 set_target_properties(graphic PROPERTIES
     CXX_STANDARD 23

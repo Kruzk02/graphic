@@ -1,16 +1,23 @@
 #pragma once
 
 #include <vector>
-#include "mesh.h"
+#include "shader.h"
 #include "texture.h"
 
-struct Material {
-    std::vector<Texture> diffuse;
-    std::vector<Texture> normal;
-    std::vector<Texture> specular;
+struct MaterialTexture {
+    Texture texture;
+    std::string uniformName;
 };
 
-struct SubMesh {
-    Mesh mesh;
-    Material material;
+class Material {
+public:
+    void bind(const Shader& shader) const {
+        for (GLint i = 0; i < textures.size(); ++i) {
+            textures[i].texture.bind(i);
+            shader.setInt(textures[i].uniformName, i);
+        }
+    }
+
+private:
+    std::vector<MaterialTexture> textures;
 };
