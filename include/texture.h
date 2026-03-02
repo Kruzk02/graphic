@@ -15,7 +15,7 @@ enum class TextureType {
 
 inline std::string toString(const TextureType type) {
     switch (type) {
-        case TextureType::Diffuse:    return "Diffuse";
+        case TextureType::Diffuse:    return "diffuseMap";
         case TextureType::Normal: return "Normal";
         case TextureType::Specular:   return "Specular";
         case TextureType::Roughness:   return "Roughness";

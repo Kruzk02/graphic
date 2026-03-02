@@ -1,7 +1,9 @@
 #include "application.h"
 
 #include "layout.h"
+#include "material.h"
 #include "mesh.h"
+#include "model.h"
 #include "shader.h"
 #include "texture.h"
 #include "transform.h"
@@ -120,8 +122,6 @@ void Application::run() {
         sizeof(Vertex)
     };
 
-    const Mesh mesh{verticesOut, indices, layout};
-
     const std::vector<float> gridVertices = {
         -1000, 0, -1000,
         1000, 0, -1000,
@@ -165,17 +165,25 @@ void Application::run() {
         sizeof(Vertex)
     );
 
+    Mesh cubeMesh{verticesOut, indices, layout};
+
     Mesh gridMesh{gridOut, gridIndices, gridLayout};
     Shader gridShader("asset/shader/grid.vs", "asset/shader/grid.fs");
 
-    const Texture texture{"asset/wall.jpg"};
+    const Texture texture{"asset/wall.jpg", TextureType::Diffuse};
 
-    Transform transform;
+    Material wallMaterial;
+    wallMaterial.addTexture({ Texture("asset/wall.jpg", TextureType::Diffuse)});
+
+    Model cubeModel;
+    cubeModel.addSubMesh({ std::move(cubeMesh), std::move(wallMaterial)});
+
+    Transform& transform = cubeModel.transform;
     transform.position.y = 0.5f;
 
     while (!window.shouldClose()) {
         updateDeltaTime();
-        processInput(transform);
+        processInput(cubeModel);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -199,7 +207,6 @@ void Application::run() {
         gridMesh.draw();
 
         lightingShader.use();
-        lightingShader.setInt("diffuseMap", 0);
         lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         lightingShader.setVec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
         lightingShader.setVec3("viewPos", camera.getPosition());
@@ -207,8 +214,7 @@ void Application::run() {
         lightingShader.setMat4("view", view);
         lightingShader.setMat4("model", model);
 
-        texture.bind();
-        mesh.draw();
+        cubeModel.draw(lightingShader);
 
         glfwPollEvents();
         glfwSwapBuffers(window.getNativeWindow());
@@ -221,7 +227,7 @@ void Application::updateDeltaTime() {
     lastFrame = now;
 }
 
-void Application::processInput(Transform &transform) {
+void Application::processInput(Model& model) {
     auto *w = window.getNativeWindow();
     if (glfwGetKey(w, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(w, true);
@@ -234,6 +240,8 @@ void Application::processInput(Transform &transform) {
         camera.processKeyboard(CameraMovement::LEFT, deltaTime);
     if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS)
         camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
+
+    auto& transform = model.transform;
 
     // Move Up
     if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_8) == GLFW_PRESS) {

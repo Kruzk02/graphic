@@ -4,24 +4,19 @@
 #include "shader.h"
 #include "texture.h"
 
-struct MaterialTexture {
-    Texture texture;
-    std::string uniformName;
-};
-
 class Material {
 public:
     void bind(const Shader& shader) const {
         for (GLint i = 0; i < textures.size(); ++i) {
-            textures[i].texture.bind(i);
-            shader.setInt(textures[i].uniformName, i);
+            textures[i].bind(i);
+            shader.setInt(toString(textures[i].getType()), i);
         }
     }
 
-    void addTexture(MaterialTexture&& material_texture) {
-        textures.push_back(std::move(material_texture));
+    void addTexture(Texture&& texture) {
+        textures.push_back(std::move(texture));
     }
 
 private:
-    std::vector<MaterialTexture> textures;
+    std::vector<Texture> textures;
 };

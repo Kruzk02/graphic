@@ -1,6 +1,7 @@
 #pragma once
 
 #include "camera.h"
+#include "model.h"
 #include "transform.h"
 #include "window.h"
 
@@ -37,7 +38,7 @@ private:
 
     void updateDeltaTime();
 
-    void processInput(Transform &transform);
+    void processInput(Model& model);
 
     static void mouseCallback(GLFWwindow *window, double xPos, double yPos);
 
