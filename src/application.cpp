@@ -7,6 +7,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "transform.h"
+#include <utility>
 
 constexpr float ROT_SPEED = glm::radians(90.0f);
 constexpr float NEAR_PLANE = 0.1f;
@@ -131,6 +132,8 @@ void Application::run() {
   Model cubeModel;
   cubeModel.addSubMesh({std::move(cubeMesh), std::move(wallMaterial)});
 
+  scene.addModel(std::move(cubeModel));
+
   Transform &transform = cubeModel.transform;
   transform.position.y = 0.5f;
 
@@ -162,7 +165,7 @@ void Application::run() {
     lightingShader.setMat4("view", view);
     lightingShader.setMat4("model", model);
 
-    cubeModel.draw(lightingShader);
+    scene.draw(lightingShader);
 
     glfwPollEvents();
     glfwSwapBuffers(window.getNativeWindow());

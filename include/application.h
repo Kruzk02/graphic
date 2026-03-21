@@ -2,6 +2,7 @@
 
 #include "camera.h"
 #include "model.h"
+#include "scene.h"
 #include "window.h"
 
 struct AppConfig {
@@ -34,6 +35,8 @@ private:
 
   Window window;
   Camera camera;
+
+  Scene scene;
 
   void updateDeltaTime();
 
