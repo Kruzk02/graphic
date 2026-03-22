@@ -14,7 +14,10 @@ constexpr float NEAR_PLANE = 0.1f;
 constexpr float FAR_PLANE = 100.0f;
 
 Application::Application(const AppConfig &config)
-    : config(config), window(config.width, config.height),
+    : lightingShader(config.shaderVertex, config.shaderFragment),
+      gridShader("asset/shader/grid.vs", "asset/shader/grid.fs"),
+      cubeMesh(createCubeMesh()), gridMesh(createGridMesh()), config(config),
+      window(config.width, config.height),
       camera(glm::vec3(0.0f, 0.5f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f)) {
   auto *nativeWindow = window.getNativeWindow();
 
@@ -27,15 +30,7 @@ Application::Application(const AppConfig &config)
   glEnable(GL_FRAMEBUFFER_SRGB);
 }
 
-void Application::run() {
-  const Shader lightingShader(config.shaderVertex, config.shaderFragment);
-
-  Mesh cubeMesh = createCubeMesh();
-  Mesh gridMesh = createGridMesh();
-
-  Shader gridShader("asset/shader/grid.vs", "asset/shader/grid.fs");
-
-  const Texture texture{"asset/wall.jpg", TextureType::Diffuse};
+void Application::setup() {
 
   Material wallMaterial;
   wallMaterial.addTexture({Texture("asset/wall.jpg", TextureType::Diffuse)});
@@ -45,40 +40,51 @@ void Application::run() {
   cubeModel.transform.position.y = 1.0f;
 
   scene.addModel(std::move(cubeModel));
+}
+
+void Application::update() {
+  updateDeltaTime();
+  processInput();
+}
+
+void Application::render() {
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glm::mat4 view = camera.getViewMatrix();
+  glm::mat4 projection = glm::perspective(glm::radians(camera.getZoom()),
+                                          static_cast<float>(config.width) /
+                                              static_cast<float>(config.height),
+                                          NEAR_PLANE, FAR_PLANE);
+
+  gridShader.use();
+  gridShader.setMat4("MVP", projection * view * glm::mat4(1.0f));
+  gridMesh.draw();
+
+  lightingShader.use();
+  lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+  lightingShader.setVec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
+  lightingShader.setVec3("viewPos", camera.getPosition());
+  lightingShader.setMat4("projection", projection);
+  lightingShader.setMat4("view", view);
+
+  for (auto &model : scene.getModels()) {
+    model.transform.rotation.x = glm::clamp(
+        model.transform.rotation.x, glm::radians(-89.0f), glm::radians(89.0f));
+    lightingShader.setMat4("model", model.transform.matrix());
+    model.draw(lightingShader);
+  }
+}
+
+void Application::run() {
+  setup();
 
   Transform transform;
   transform.position.y = 0.5f;
 
   while (!window.shouldClose()) {
-    updateDeltaTime();
-    processInput(cubeModel);
-
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    transform.rotation.x = glm::clamp(
-        transform.rotation.x, glm::radians(-89.0f), glm::radians(89.0f));
-    glm::mat4 view = camera.getViewMatrix();
-    glm::mat4 model = transform.matrix();
-    glm::mat4 projection = glm::perspective(
-        glm::radians(camera.getZoom()),
-        static_cast<float>(config.width) / static_cast<float>(config.height),
-        NEAR_PLANE, FAR_PLANE);
-
-    gridShader.use();
-    gridShader.setMat4("MVP", projection * view * glm::mat4(1.0f));
-    gridMesh.draw();
-
-    lightingShader.use();
-    lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    lightingShader.setVec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
-    lightingShader.setVec3("viewPos", camera.getPosition());
-    lightingShader.setMat4("projection", projection);
-    lightingShader.setMat4("view", view);
-    lightingShader.setMat4("model", cubeModel.transform.matrix());
-
-    scene.draw(lightingShader);
-
+    update();
+    render();
     glfwPollEvents();
     glfwSwapBuffers(window.getNativeWindow());
   }
@@ -189,7 +195,7 @@ void Application::updateDeltaTime() {
   lastFrame = now;
 }
 
-void Application::processInput(Model &model) {
+void Application::processInput() {
   auto *w = window.getNativeWindow();
   if (glfwGetKey(w, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(w, true);
@@ -202,58 +208,6 @@ void Application::processInput(Model &model) {
     camera.processKeyboard(CameraMovement::LEFT, deltaTime);
   if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS)
     camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
-
-  auto &transform = model.transform;
-
-  // Move Up
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_8) == GLFW_PRESS) {
-    transform.position += transform.up() * speed * deltaTime;
-  }
-
-  // Move Down
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_2) == GLFW_PRESS) {
-    transform.position -= transform.up() * speed * deltaTime;
-  }
-
-  // Move Left
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_4) == GLFW_PRESS) {
-    transform.position -= transform.right() * speed * deltaTime;
-  }
-
-  // Move Right
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_6) == GLFW_PRESS) {
-    transform.position += transform.right() * speed * deltaTime;
-  }
-
-  // Move forward
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_7) == GLFW_PRESS) {
-    transform.position += transform.forward() * speed * deltaTime;
-  }
-
-  // Move backward
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_9) == GLFW_PRESS) {
-    transform.position -= transform.forward() * speed * deltaTime;
-  }
-
-  // Rotate down
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_1) == GLFW_PRESS) {
-    transform.rotation.x += ROT_SPEED * deltaTime;
-  }
-
-  // Rotate up
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_3) == GLFW_PRESS) {
-    transform.rotation.x -= ROT_SPEED * deltaTime;
-  }
-
-  // Rotate left
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_0) == GLFW_PRESS) {
-    transform.rotation.y -= ROT_SPEED * deltaTime;
-  }
-
-  // Rotate right
-  if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_KP_DECIMAL) == GLFW_PRESS) {
-    transform.rotation.y += ROT_SPEED * deltaTime;
-  }
 }
 
 void Application::mouseCallback(GLFWwindow *window, const double xPos,

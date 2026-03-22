@@ -2,7 +2,6 @@
 
 #include "camera.h"
 #include "mesh.h"
-#include "model.h"
 #include "scene.h"
 #include "window.h"
 
@@ -38,12 +37,19 @@ private:
   Camera camera;
 
   Scene scene;
+  Shader lightingShader;
+  Shader gridShader;
+  Mesh cubeMesh;
+  Mesh gridMesh;
 
   Mesh createCubeMesh();
   Mesh createGridMesh();
   void updateDeltaTime();
 
-  void processInput(Model &model);
+  void setup();
+  void update();
+  void render();
+  void processInput();
 
   static void mouseCallback(GLFWwindow *window, double xPos, double yPos);
 
