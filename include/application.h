@@ -1,6 +1,7 @@
 #pragma once
 
 #include "camera.h"
+#include "mesh.h"
 #include "model.h"
 #include "scene.h"
 #include "window.h"
@@ -38,6 +39,8 @@ private:
 
   Scene scene;
 
+  Mesh createCubeMesh();
+  Mesh createGridMesh();
   void updateDeltaTime();
 
   void processInput(Model &model);

@@ -30,6 +30,62 @@ Application::Application(const AppConfig &config)
 void Application::run() {
   const Shader lightingShader(config.shaderVertex, config.shaderFragment);
 
+  Mesh cubeMesh = createCubeMesh();
+  Mesh gridMesh = createGridMesh();
+
+  Shader gridShader("asset/shader/grid.vs", "asset/shader/grid.fs");
+
+  const Texture texture{"asset/wall.jpg", TextureType::Diffuse};
+
+  Material wallMaterial;
+  wallMaterial.addTexture({Texture("asset/wall.jpg", TextureType::Diffuse)});
+
+  Model cubeModel;
+  cubeModel.addSubMesh({std::move(cubeMesh), std::move(wallMaterial)});
+  cubeModel.transform.position.y = 1.0f;
+
+  scene.addModel(std::move(cubeModel));
+
+  Transform transform;
+  transform.position.y = 0.5f;
+
+  while (!window.shouldClose()) {
+    updateDeltaTime();
+    processInput(cubeModel);
+
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    transform.rotation.x = glm::clamp(
+        transform.rotation.x, glm::radians(-89.0f), glm::radians(89.0f));
+    glm::mat4 view = camera.getViewMatrix();
+    glm::mat4 model = transform.matrix();
+    glm::mat4 projection = glm::perspective(
+        glm::radians(camera.getZoom()),
+        static_cast<float>(config.width) / static_cast<float>(config.height),
+        NEAR_PLANE, FAR_PLANE);
+
+    gridShader.use();
+    gridShader.setMat4("MVP", projection * view * glm::mat4(1.0f));
+    gridMesh.draw();
+
+    lightingShader.use();
+    lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    lightingShader.setVec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
+    lightingShader.setVec3("viewPos", camera.getPosition());
+    lightingShader.setMat4("projection", projection);
+    lightingShader.setMat4("view", view);
+    lightingShader.setMat4("model", cubeModel.transform.matrix());
+
+    scene.draw(lightingShader);
+
+    glfwPollEvents();
+    glfwSwapBuffers(window.getNativeWindow());
+  }
+}
+
+Mesh Application::createCubeMesh() {
+
   const std::vector<float> vertices = {
       // ---------- Front face ----------
       -0.5f, -0.5f, 0.5f, 0, 0, 1, 0, 0, 0.5f, -0.5f, 0.5f, 0, 0, 1, 1, 0, 0.5f,
@@ -90,6 +146,11 @@ void Application::run() {
       },
       sizeof(Vertex)};
 
+  return {verticesOut, indices, layout};
+}
+
+Mesh Application::createGridMesh() {
+
   const std::vector<float> gridVertices = {-1000, 0, -1000, 1000,  0, -1000,
                                            1000,  0, 1000,  -1000, 0, 1000};
 
@@ -119,57 +180,7 @@ void Application::run() {
   const VertexLayout gridLayout(
       {{0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position)}}, sizeof(Vertex));
 
-  Mesh cubeMesh{verticesOut, indices, layout};
-
-  Mesh gridMesh{gridOut, gridIndices, gridLayout};
-  Shader gridShader("asset/shader/grid.vs", "asset/shader/grid.fs");
-
-  const Texture texture{"asset/wall.jpg", TextureType::Diffuse};
-
-  Material wallMaterial;
-  wallMaterial.addTexture({Texture("asset/wall.jpg", TextureType::Diffuse)});
-
-  Model cubeModel;
-  cubeModel.addSubMesh({std::move(cubeMesh), std::move(wallMaterial)});
-
-  scene.addModel(std::move(cubeModel));
-
-  Transform &transform = cubeModel.transform;
-  transform.position.y = 0.5f;
-
-  while (!window.shouldClose()) {
-    updateDeltaTime();
-    processInput(cubeModel);
-
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    transform.rotation.x = glm::clamp(
-        transform.rotation.x, glm::radians(-89.0f), glm::radians(89.0f));
-    glm::mat4 view = camera.getViewMatrix();
-    glm::mat4 model = transform.matrix();
-    glm::mat4 projection = glm::perspective(
-        glm::radians(camera.getZoom()),
-        static_cast<float>(config.width) / static_cast<float>(config.height),
-        NEAR_PLANE, FAR_PLANE);
-
-    gridShader.use();
-    gridShader.setMat4("MVP", projection * view * glm::mat4(1.0f));
-    gridMesh.draw();
-
-    lightingShader.use();
-    lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    lightingShader.setVec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
-    lightingShader.setVec3("viewPos", camera.getPosition());
-    lightingShader.setMat4("projection", projection);
-    lightingShader.setMat4("view", view);
-    lightingShader.setMat4("model", model);
-
-    scene.draw(lightingShader);
-
-    glfwPollEvents();
-    glfwSwapBuffers(window.getNativeWindow());
-  }
+  return {gridOut, gridIndices, gridLayout};
 }
 
 void Application::updateDeltaTime() {
