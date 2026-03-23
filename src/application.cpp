@@ -37,7 +37,7 @@ void Application::setup() {
 
   Model cubeModel;
   cubeModel.addSubMesh({std::move(cubeMesh), std::move(wallMaterial)});
-  cubeModel.transform.position.y = 1.0f;
+  cubeModel.transform.position.y = 0.5f;
 
   scene.addModel(std::move(cubeModel));
 }
@@ -78,9 +78,6 @@ void Application::render() {
 
 void Application::run() {
   setup();
-
-  Transform transform;
-  transform.position.y = 0.5f;
 
   while (!window.shouldClose()) {
     update();
