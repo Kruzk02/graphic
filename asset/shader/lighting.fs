@@ -5,7 +5,7 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoord;
 
-uniform sampler2D diffuseMap;
+uniform sampler2D diffuseMap0;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -14,7 +14,7 @@ uniform vec3 lightColor;
 void main()
 {
     // sample texture color
-    vec3 texColor = texture(diffuseMap, TexCoord).rgb;
+    vec3 texColor = texture(diffuseMap0, TexCoord).rgb;
 
     // ambient
     float ambientStrength = 0.1;
