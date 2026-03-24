@@ -2,14 +2,21 @@
 
 #include "shader.h"
 #include "texture.h"
+#include <string>
 #include <vector>
 
 class Material {
 public:
   void bind(const Shader &shader) const {
-    for (GLint i = 0; i < textures.size(); ++i) {
-      textures[i].bind(i);
-      shader.setInt(toString(textures[i].getType()), i);
+    GLint unit = 0;
+
+    for (const auto &tex : textures) {
+      tex.bind(unit);
+
+      std::string uniformName = toString(tex.getType()) + std::to_string(unit);
+
+      shader.setInt(uniformName, unit);
+      unit++;
     }
   }
 

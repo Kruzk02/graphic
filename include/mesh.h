@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "glad/glad.h"
+#include "glm/ext/vector_float3.hpp"
 #include "layout.h"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -15,6 +16,15 @@ struct Vertex {
   glm::vec3 BiTangent;
   int mBoneIds[MAX_BONE_INFLUENCE];
   float mWeights[MAX_BONE_INFLUENCE];
+
+  static VertexLayout getLayout() {
+    return {{
+                {0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position)},
+                {1, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal)},
+                {2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoord)},
+            },
+            sizeof(Vertex)};
+  }
 };
 
 class Mesh {
