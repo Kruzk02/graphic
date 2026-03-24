@@ -39,7 +39,6 @@ private:
   Scene scene;
   Shader lightingShader;
   Shader gridShader;
-  Mesh cubeMesh;
   Mesh gridMesh;
 
   Mesh createCubeMesh();

@@ -1,12 +1,11 @@
 #include "application.h"
 
 #include "layout.h"
-#include "material.h"
 #include "mesh.h"
 #include "model.h"
 #include "shader.h"
-#include "texture.h"
 #include "transform.h"
+#include <iostream>
 #include <utility>
 
 constexpr float ROT_SPEED = glm::radians(90.0f);
@@ -16,7 +15,7 @@ constexpr float FAR_PLANE = 100.0f;
 Application::Application(const AppConfig &config)
     : lightingShader(config.shaderVertex, config.shaderFragment),
       gridShader("asset/shader/grid.vs", "asset/shader/grid.fs"),
-      cubeMesh(createCubeMesh()), gridMesh(createGridMesh()), config(config),
+      gridMesh(createGridMesh()), config(config),
       window(config.width, config.height),
       camera(glm::vec3(0.0f, 0.5f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f)) {
   auto *nativeWindow = window.getNativeWindow();
@@ -31,15 +30,13 @@ Application::Application(const AppConfig &config)
 }
 
 void Application::setup() {
+  Model model;
 
-  Material wallMaterial;
-  wallMaterial.addTexture({Texture("asset/wall.jpg", TextureType::Diffuse)});
+  model.loadFromFile("asset/models/backpack.obj");
 
-  Model cubeModel;
-  cubeModel.addSubMesh({std::move(cubeMesh), std::move(wallMaterial)});
-  cubeModel.transform.position.y = 0.5f;
+  model.transform.position.y = 1.5f;
 
-  scene.addModel(std::move(cubeModel));
+  scene.addModel(std::move(model));
 }
 
 void Application::update() {
