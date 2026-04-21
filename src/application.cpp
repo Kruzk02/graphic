@@ -5,7 +5,6 @@
 #include "model.h"
 #include "shader.h"
 #include "transform.h"
-#include <iostream>
 #include <utility>
 
 constexpr float ROT_SPEED = glm::radians(90.0f);
@@ -32,7 +31,7 @@ Application::Application(const AppConfig &config)
 void Application::setup() {
   Model model;
 
-  model.loadFromFile("asset/models/backpack.obj");
+  model.loadFromFile("asset/models/backpack/Backpack.obj");
 
   model.transform.position.y = 1.5f;
 
@@ -59,8 +58,8 @@ void Application::render() {
   gridMesh.draw();
 
   lightingShader.use();
-  lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-  lightingShader.setVec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
+  lightingShader.setVec3("lightColor", glm::vec3(2.0f, 2.0f, 2.0f));
+  lightingShader.setVec3("lightPos", glm::vec3(2.0f, 3.0f, 2.0f));
   lightingShader.setVec3("viewPos", camera.getPosition());
   lightingShader.setMat4("projection", projection);
   lightingShader.setMat4("view", view);

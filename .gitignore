@@ -957,6 +957,7 @@ _deps
 *.lo
 *.o
 *.obj
+!assets/**/*.obj
 
 # Precompiled Headers
 *.gch
