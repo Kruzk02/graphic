@@ -6,33 +6,38 @@
 #include "transform.h"
 #include <string>
 
-struct SubMesh {
-  Mesh mesh;
-  Material material;
+struct SubMesh
+{
+    Mesh mesh;
+    Material material;
 };
 
-class Model {
-public:
-  Transform transform;
-  std::string directory;
+class Model
+{
+  public:
+    Transform transform;
+    std::string directory;
 
-  bool loadFromFile(const std::string &path);
+    bool loadFromFile(const std::string &path);
 
-  void addSubMesh(SubMesh &&subMesh) {
-    subMeshes.push_back(std::move(subMesh));
-  }
-
-  void draw(const Shader &shader) const {
-    std::cout << "Drawing " << subMeshes.size() << " submeshes\n";
-    for (const auto &[mesh, material] : subMeshes) {
-      material.bind(shader);
-      mesh.draw();
+    void addSubMesh(SubMesh &&subMesh)
+    {
+        subMeshes.push_back(std::move(subMesh));
     }
-  }
 
-private:
-  std::vector<SubMesh> subMeshes;
+    void draw(const Shader &shader) const
+    {
+        std::cout << "Drawing " << subMeshes.size() << " submeshes\n";
+        for (const auto &[mesh, material] : subMeshes)
+        {
+            material.bind(shader);
+            mesh.draw();
+        }
+    }
 
-  void processNode(aiNode *node, const aiScene *scene);
-  SubMesh processMesh(aiMesh *mesh, const aiScene *scene);
+  private:
+    std::vector<SubMesh> subMeshes;
+
+    void processNode(aiNode *node, const aiScene *scene);
+    SubMesh processMesh(aiMesh *mesh, const aiScene *scene);
 };
