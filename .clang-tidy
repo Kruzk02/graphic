@@ -1,0 +1,13 @@
+Checks: >
+  clang-analyzer-*,
+  bugprone-*,
+  performance-*,
+  modernize-*,
+  cppcoreguidelines-avoid-*,
+  cppcoreguidelines-owning-memory
+
+WarningsAsErrors: ""
+
+CheckOptions:
+  - key: modernize-use-nullptr.NullMacros
+    value: "NULL"
