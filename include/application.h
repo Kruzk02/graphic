@@ -5,6 +5,8 @@
 #include "scene.h"
 #include "window.h"
 
+#define SPEED 5.0f;
+
 struct AppConfig
 {
     int width;
@@ -28,7 +30,7 @@ class Application
     void run();
 
   private:
-    float speed = 5.0f;
+    float speed = SPEED;
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
@@ -44,8 +46,7 @@ class Application
     Shader gridShader;
     Mesh gridMesh;
 
-    Mesh createCubeMesh();
-    Mesh createGridMesh();
+    auto createGridMesh() -> Mesh;
     void updateDeltaTime();
 
     void setup();

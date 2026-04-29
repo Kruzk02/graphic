@@ -1,8 +1,17 @@
 #include <application.h>
 
-int main()
+namespace ApplicationScreen
 {
-    Application application{{900, 720, "asset/shader/lighting.vs", "asset/shader/lighting.fs"}};
+constexpr int width = 1080;
+constexpr int height = 720;
+}; // namespace ApplicationScreen
+
+auto main() -> int
+{
+    Application application{{.width = ApplicationScreen::width,
+                             .height = ApplicationScreen::height,
+                             .shaderVertex = "asset/shader/lighting.vs",
+                             .shaderFragment = "asset/shader/lighting.fs"}};
     application.run();
     return 0;
 }

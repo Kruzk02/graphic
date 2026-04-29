@@ -7,15 +7,51 @@
 #include "transform.h"
 #include <utility>
 
+namespace RenderDefaults
+{
+constexpr glm::vec4 ClearColor{0.2f, 0.3f, 0.3f, 1.0f};
+
+constexpr glm::vec3 LightColor{2.0f, 2.0f, 2.0f};
+constexpr glm::vec3 LightPosition{2.0f, 3.0f, 2.0f};
+} // namespace RenderDefaults
+
+namespace CameraDefaults
+{
+constexpr glm::vec3 Position{0.0f, 0.5f, 3.0f};
+constexpr glm::vec3 Up{0.0f, 1.0f, 0.0f};
+} // namespace CameraDefaults
+
+namespace AssetPaths
+{
+constexpr const char *GridVertex = "asset/shader/grid.vs";
+constexpr const char *GridFragment = "asset/shader/grid.fs";
+constexpr const char *BackpackModel = "asset/models/backpack/Backpack.obj";
+} // namespace AssetPaths
+
+namespace SceneDefaults
+{
+constexpr float ModelHeightOffset = 1.5f;
+}
+
+namespace TransformLimits
+{
+constexpr float PitchMin = glm::radians(-89.0f);
+constexpr float PitchMax = glm::radians(89.0f);
+} // namespace TransformLimits
+
+namespace ProjectionDefaults
+{
+constexpr float NearPlane = 0.1f;
+constexpr float FarPlane = 100.0f;
+} // namespace ProjectionDefaults
+
 constexpr float ROT_SPEED = glm::radians(90.0f);
-constexpr float NEAR_PLANE = 0.1f;
-constexpr float FAR_PLANE = 100.0f;
 
 Application::Application(const AppConfig &config)
     : lightingShader(config.shaderVertex, config.shaderFragment),
-      gridShader("asset/shader/grid.vs", "asset/shader/grid.fs"), gridMesh(createGridMesh()),
+      gridShader(AssetPaths::GridVertex, AssetPaths::GridFragment), gridMesh(createGridMesh()),
       config(config), window(config.width, config.height),
-      camera(glm::vec3(0.0f, 0.5f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f))
+      camera(CameraDefaults::Position, CameraDefaults::Up)
 {
     auto *nativeWindow = window.getNativeWindow();
 
@@ -32,9 +68,9 @@ void Application::setup()
 {
     Model model;
 
-    model.loadFromFile("asset/models/backpack/Backpack.obj");
+    model.loadFromFile(AssetPaths::BackpackModel);
 
-    model.transform.position.y = 1.5f;
+    model.transform.position.y = SceneDefaults::ModelHeightOffset;
 
     scene.addModel(std::move(model));
 }
@@ -47,30 +83,31 @@ void Application::update()
 
 void Application::render()
 {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(RenderDefaults::ClearColor.r, RenderDefaults::ClearColor.g,
+                 RenderDefaults::ClearColor.b, RenderDefaults::ClearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 projection =
         glm::perspective(glm::radians(camera.getZoom()),
                          static_cast<float>(config.width) / static_cast<float>(config.height),
-                         NEAR_PLANE, FAR_PLANE);
+                         ProjectionDefaults::NearPlane, ProjectionDefaults::FarPlane);
 
     gridShader.use();
     gridShader.setMat4("MVP", projection * view * glm::mat4(1.0f));
     gridMesh.draw();
 
     lightingShader.use();
-    lightingShader.setVec3("lightColor", glm::vec3(2.0f, 2.0f, 2.0f));
-    lightingShader.setVec3("lightPos", glm::vec3(2.0f, 3.0f, 2.0f));
+    lightingShader.setVec3("lightColor", RenderDefaults::LightColor);
+    lightingShader.setVec3("lightPos", RenderDefaults::LightPosition);
     lightingShader.setVec3("viewPos", camera.getPosition());
     lightingShader.setMat4("projection", projection);
     lightingShader.setMat4("view", view);
 
     for (auto &model : scene.getModels())
     {
-        model.transform.rotation.x =
-            glm::clamp(model.transform.rotation.x, glm::radians(-89.0f), glm::radians(89.0f));
+        model.transform.rotation.x = glm::clamp(
+            model.transform.rotation.x, TransformLimits::PitchMin, TransformLimits::PitchMax);
         lightingShader.setMat4("model", model.transform.matrix());
         model.draw(lightingShader);
     }
@@ -89,74 +126,7 @@ void Application::run()
     }
 }
 
-Mesh Application::createCubeMesh()
-{
-
-    const std::vector<float> vertices = {
-        // ---------- Front face ----------
-        -0.5f, -0.5f, 0.5f, 0, 0, 1, 0, 0, 0.5f, -0.5f, 0.5f, 0, 0, 1, 1, 0, 0.5f, 0.5f, 0.5f, 0, 0,
-        1, 1, 1, -0.5f, 0.5f, 0.5f, 0, 0, 1, 0, 1,
-
-        // ---------- Back face ----------
-        0.5f, -0.5f, -0.5f, 0, 0, -1, 0, 0, -0.5f, -0.5f, -0.5f, 0, 0, -1, 1, 0, -0.5f, 0.5f, -0.5f,
-        0, 0, -1, 1, 1, 0.5f, 0.5f, -0.5f, 0, 0, -1, 0, 1,
-
-        // ---------- Left face ----------
-        -0.5f, -0.5f, -0.5f, -1, 0, 0, 0, 0, -0.5f, -0.5f, 0.5f, -1, 0, 0, 1, 0, -0.5f, 0.5f, 0.5f,
-        -1, 0, 0, 1, 1, -0.5f, 0.5f, -0.5f, -1, 0, 0, 0, 1,
-
-        // ---------- Right face ----------
-        0.5f, -0.5f, 0.5f, 1, 0, 0, 0, 0, 0.5f, -0.5f, -0.5f, 1, 0, 0, 1, 0, 0.5f, 0.5f, -0.5f, 1,
-        0, 0, 1, 1, 0.5f, 0.5f, 0.5f, 1, 0, 0, 0, 1,
-
-        // ---------- Bottom face ----------
-        -0.5f, -0.5f, -0.5f, 0, -1, 0, 0, 0, 0.5f, -0.5f, -0.5f, 0, -1, 0, 1, 0, 0.5f, -0.5f, 0.5f,
-        0, -1, 0, 1, 1, -0.5f, -0.5f, 0.5f, 0, -1, 0, 0, 1,
-
-        // ---------- Top face ----------
-        -0.5f, 0.5f, 0.5f, 0, 1, 0, 0, 0, 0.5f, 0.5f, 0.5f, 0, 1, 0, 1, 0, 0.5f, 0.5f, -0.5f, 0, 1,
-        0, 1, 1, -0.5f, 0.5f, -0.5f, 0, 1, 0, 0, 1};
-
-    std::vector<Vertex> verticesOut;
-
-    for (size_t i = 0; i < vertices.size(); i += 8)
-    {
-        Vertex v{};
-
-        v.Position = glm::vec3(vertices[i + 0], vertices[i + 1], vertices[i + 2]);
-
-        v.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
-
-        v.TexCoord = glm::vec2(vertices[i + 6], vertices[i + 7]);
-
-        // Optional / default values
-        v.Tangent = glm::vec3(0.0f);
-        v.BiTangent = glm::vec3(0.0f);
-
-        for (int j = 0; j < MAX_BONE_INFLUENCE; j++)
-        {
-            v.mBoneIds[j] = -1;
-            v.mWeights[j] = 0.0f;
-        }
-
-        verticesOut.push_back(v);
-    }
-
-    const std::vector<unsigned int> indices = {0,  1,  2,  2,  3,  0,  4,  5,  6,  6,  7,  4,
-                                               8,  9,  10, 10, 11, 8,  12, 13, 14, 14, 15, 12,
-                                               16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20};
-
-    const VertexLayout layout{{
-                                  {{0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position)},
-                                   {1, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal)},
-                                   {2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoord)}},
-                              },
-                              sizeof(Vertex)};
-
-    return {verticesOut, indices, layout};
-}
-
-Mesh Application::createGridMesh()
+auto Application::createGridMesh() -> Mesh
 {
 
     const std::vector<float> gridVertices = {-1000, 0, -1000, 1000,  0, -1000,
@@ -169,8 +139,7 @@ Mesh Application::createGridMesh()
 
         v.Position = glm::vec3(gridVertices[i + 0], gridVertices[i + 1], gridVertices[i + 2]);
 
-        // Defaults for missing attributes
-        v.Normal = glm::vec3(0.0f, 1.0f, 0.0f); // up
+        v.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
         v.TexCoord = glm::vec2(0.0f);
         v.Tangent = glm::vec3(0.0f);
         v.BiTangent = glm::vec3(0.0f);
