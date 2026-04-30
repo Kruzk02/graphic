@@ -18,7 +18,7 @@ class Model
     Transform transform;
     std::string directory;
 
-    bool loadFromFile(const std::string &path);
+    auto loadFromFile(const std::string &path) -> bool;
 
     void addSubMesh(SubMesh &&subMesh)
     {
@@ -27,7 +27,6 @@ class Model
 
     void draw(const Shader &shader) const
     {
-        std::cout << "Drawing " << subMeshes.size() << " submeshes\n";
         for (const auto &[mesh, material] : subMeshes)
         {
             material.bind(shader);
@@ -39,5 +38,5 @@ class Model
     std::vector<SubMesh> subMeshes;
 
     void processNode(aiNode *node, const aiScene *scene);
-    SubMesh processMesh(aiMesh *mesh, const aiScene *scene);
+    auto processMesh(aiMesh *mesh, const aiScene *scene) -> SubMesh;
 };

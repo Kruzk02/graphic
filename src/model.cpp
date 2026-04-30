@@ -6,7 +6,7 @@
 #include "mesh.h"
 #include <vector>
 
-bool Model::loadFromFile(const std::string &path)
+auto Model::loadFromFile(const std::string &path) -> bool
 {
     Assimp::Importer importer;
 
@@ -37,7 +37,7 @@ void Model::processNode(aiNode *node, const aiScene *scene)
     }
 }
 
-SubMesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
+auto Model::processMesh(aiMesh *mesh, const aiScene *scene) -> SubMesh
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -76,7 +76,7 @@ SubMesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     {
         aiMaterial *aiMat = scene->mMaterials[mesh->mMaterialIndex];
 
-        auto loadTextures = [&](aiTextureType type, TextureType myType)
+        auto loadTextures = [&](aiTextureType type, TextureType myType) -> void
         {
             for (unsigned int i = 0; i < aiMat->GetTextureCount(type); i++)
             {
@@ -98,5 +98,5 @@ SubMesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
         loadTextures(aiTextureType_AMBIENT_OCCLUSION, TextureType::AO);
     }
 
-    return {std::move(myMesh), std::move(material)};
+    return {.mesh = std::move(myMesh), .material = std::move(material)};
 }
