@@ -1,5 +1,6 @@
 #include "application.h"
 
+#include "camera.h"
 #include "layout.h"
 #include "mesh.h"
 #include "model.h"
@@ -51,7 +52,9 @@ Application::Application(const AppConfig &config)
     : lightingShader(config.shaderVertex, config.shaderFragment),
       gridShader(AssetPaths::GridVertex, AssetPaths::GridFragment), gridMesh(createGridMesh()),
       config(config), window(config.width, config.height),
-      camera(CameraDefaults::Position, CameraDefaults::Up)
+      camera(CameraPosition{CameraDefaults::Position.x, CameraDefaults::Position.y,
+                            CameraDefaults::Position.z},
+             CameraUp{CameraDefaults::Up.x, CameraDefaults::Up.y, CameraDefaults::Up.z})
 {
     auto *nativeWindow = window.getNativeWindow();
 
