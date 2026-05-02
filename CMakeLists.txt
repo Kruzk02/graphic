@@ -3,6 +3,7 @@ project(graphic)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Glad
 add_library(glad_c STATIC lib/glad/src/glad.c)
@@ -17,8 +18,7 @@ add_subdirectory(lib/assimp)
 find_package(OpenGL REQUIRED)
 
 file(GLOB_RECURSE APP_SRC CONFIGURE_DEPENDS src/*.cpp)
-add_executable(graphic ${APP_SRC}
-        include/material.h)
+add_executable(graphic ${APP_SRC})
 
 set_target_properties(graphic PROPERTIES
     CXX_STANDARD 23
@@ -32,10 +32,7 @@ add_custom_command(TARGET graphic POST_BUILD
         $<TARGET_FILE_DIR:graphic>/asset
 )
 
-target_include_directories(graphic
-    PUBLIC
-        ${CMAKE_SOURCE_DIR}/include
-)
+target_include_directories(graphic PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 target_link_libraries(graphic PRIVATE
         glad_c
