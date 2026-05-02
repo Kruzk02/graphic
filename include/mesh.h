@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <vector>
 
 #include "glad/glad.h"
@@ -15,17 +16,18 @@ struct Vertex
     glm::vec2 TexCoord;
     glm::vec3 Tangent;
     glm::vec3 BiTangent;
-    int mBoneIds[MAX_BONE_INFLUENCE];
-    float mWeights[MAX_BONE_INFLUENCE];
+    std::array<int, MAX_BONE_INFLUENCE> mBoneIds;
+    std::array<float, MAX_BONE_INFLUENCE> mWeights;
 
-    static VertexLayout getLayout()
+    static auto getLayout() -> VertexLayout
     {
-        return {{
-                    {0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position)},
-                    {1, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal)},
-                    {2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoord)},
-                },
-                sizeof(Vertex)};
+        return {.attributes =
+                    {
+                        {0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position)},
+                        {1, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal)},
+                        {2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoord)},
+                    },
+                .stride = sizeof(Vertex)};
     }
 };
 
@@ -60,11 +62,13 @@ class Mesh
             if (type == GL_INT || type == GL_UNSIGNED_INT)
             {
                 glVertexAttribIPointer(index, count, type, layout.stride,
+                                       // NOLINTNEXTLINE(performance-no-int-to-ptr)
                                        reinterpret_cast<void *>(offset));
             }
             else
             {
                 glVertexAttribPointer(index, count, type, normalized, layout.stride,
+                                      // NOLINTNEXTLINE(performance-no-int-to-ptr)
                                       reinterpret_cast<void *>(offset));
             }
         }
@@ -88,7 +92,7 @@ class Mesh
 
     Mesh(const Mesh &) = delete;
 
-    Mesh &operator=(const Mesh &) = delete;
+    auto operator=(const Mesh &) -> Mesh & = delete;
 
     Mesh(Mesh &&other) noexcept
     {
@@ -99,7 +103,7 @@ class Mesh
         other.VAO = other.VBO = other.EBO = 0;
     }
 
-    Mesh &operator=(Mesh &&other) noexcept
+    auto operator=(Mesh &&other) noexcept -> Mesh &
     {
         if (this != &other)
         {
