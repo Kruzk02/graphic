@@ -1,10 +1,11 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
 #include "glad/glad.h"
 
-enum class TextureType
+enum class TextureType : std::uint8_t
 {
     Diffuse,
     Normal,
@@ -14,7 +15,7 @@ enum class TextureType
     AO
 };
 
-inline std::string toString(const TextureType type)
+inline auto toString(const TextureType type) -> std::string
 {
     switch (type)
     {
@@ -42,14 +43,14 @@ class Texture
     ~Texture();
 
     Texture(const Texture &) = delete;
-    Texture &operator=(const Texture &) = delete;
+    auto operator=(const Texture &) -> Texture & = delete;
 
     Texture(Texture &&other) noexcept : id(other.id), type(other.type)
     {
         other.id = 0;
     }
 
-    Texture &operator=(Texture &&other) noexcept
+    auto operator=(Texture &&other) noexcept -> Texture &
     {
         if (this != &other)
         {
@@ -62,11 +63,11 @@ class Texture
     }
 
     void bind(GLuint unit = 0) const;
-    [[nodiscard]] GLuint getId() const
+    [[nodiscard]] auto getId() const -> GLuint
     {
         return id;
     }
-    [[nodiscard]] TextureType getType() const
+    [[nodiscard]] auto getType() const -> TextureType
     {
         return type;
     }

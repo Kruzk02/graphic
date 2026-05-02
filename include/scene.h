@@ -10,7 +10,7 @@ class Scene
         models.push_back(std::move(model));
     }
 
-    std::vector<Model> &getModels()
+    auto getModels() -> std::vector<Model> &
     {
         return models;
     }

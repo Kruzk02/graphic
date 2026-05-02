@@ -6,10 +6,10 @@
 class Window
 {
   public:
-    explicit Window(int width = 800, int height = 600, const char *title = "window");
+    explicit Window(int width, int height, const char *title = "window");
     ~Window();
 
-    [[nodiscard]] bool shouldClose() const
+    [[nodiscard]] auto shouldClose() const -> bool
     {
         return glfwWindowShouldClose(window);
     }
@@ -19,7 +19,7 @@ class Window
         glfwSwapBuffers(window);
     }
 
-    [[nodiscard]] GLFWwindow *getNativeWindow() const
+    [[nodiscard]] auto getNativeWindow() const -> GLFWwindow *
     {
         return window;
     }
