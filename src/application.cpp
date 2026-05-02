@@ -49,9 +49,9 @@ constexpr float FarPlane = 100.0f;
 constexpr float ROT_SPEED = glm::radians(90.0f);
 
 Application::Application(const AppConfig &config)
-    : lightingShader(config.shaderVertex, config.shaderFragment),
-      gridShader(AssetPaths::GridVertex, AssetPaths::GridFragment), gridMesh(createGridMesh()),
-      config(config), window(config.width, config.height),
+    : lightingShader({.vertexPath = config.shaderVertex, .fragmentPath = config.shaderFragment}),
+      gridShader({.vertexPath = AssetPaths::GridVertex, .fragmentPath = AssetPaths::GridFragment}),
+      gridMesh(createGridMesh()), config(config), window(config.width, config.height),
       camera(CameraPosition{CameraDefaults::Position.x, CameraDefaults::Position.y,
                             CameraDefaults::Position.z},
              CameraUp{CameraDefaults::Up.x, CameraDefaults::Up.y, CameraDefaults::Up.z})
