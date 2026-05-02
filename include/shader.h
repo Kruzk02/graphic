@@ -4,7 +4,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -12,11 +11,19 @@
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#define BufferSize 1024
+
+struct ShaderPath
+{
+    const char *vertexPath;
+    const char *fragmentPath;
+};
+
 class Shader
 {
     mutable std::unordered_map<std::string, int> uniformCache;
 
-    int getUniformLocation(const std::string &name) const
+    auto getUniformLocation(const std::string &name) const -> int
     {
         if (uniformCache.contains(name))
         {
@@ -31,9 +38,9 @@ class Shader
   public:
     unsigned int ID;
 
-    Shader(const char *vertexPath, const char *fragmentPath)
+    Shader(const ShaderPath &shaderPath)
     {
-        std::ifstream vFile(vertexPath);
+        std::ifstream vFile(shaderPath.vertexPath);
         if (!vFile)
         {
             std::cerr << "ERROR::SHADER::VERTEX FILE NOT FOUND\n";
@@ -41,7 +48,7 @@ class Shader
         }
         std::string vertexCode((std::istreambuf_iterator(vFile)), std::istreambuf_iterator<char>());
 
-        std::ifstream fFile(fragmentPath);
+        std::ifstream fFile(shaderPath.fragmentPath);
         if (!fFile)
         {
             std::cerr << "ERROR::SHADER::FRAGMENT FILE NOT FOUND\n";
@@ -117,11 +124,11 @@ class Shader
                 int logLength;
                 glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &logLength);
                 std::vector<char> infoLog(logLength);
-                glGetShaderInfoLog(shader, 1024, nullptr, infoLog.data());
+                glGetShaderInfoLog(shader, BufferSize, nullptr, infoLog.data());
                 std::cerr << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n"
                           << infoLog.data()
                           << "\n -- --------------------------------------------------- -- "
-                          << std::endl;
+                          << '\n';
             }
         }
         else
@@ -132,11 +139,11 @@ class Shader
                 int logLength;
                 glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &logLength);
                 std::vector<char> infoLog(logLength);
-                glGetProgramInfoLog(shader, 1024, nullptr, infoLog.data());
+                glGetProgramInfoLog(shader, BufferSize, nullptr, infoLog.data());
                 std::cerr << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n"
                           << infoLog.data()
                           << "\n -- --------------------------------------------------- -- "
-                          << std::endl;
+                          << '\n';
             }
         }
     }
