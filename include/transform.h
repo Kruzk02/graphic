@@ -19,7 +19,7 @@ struct Transform
     /// Translation -> Rotation (X, Y, Z) -> Scale.
     ///
     /// @return 4x4 transformation matrix.
-    [[nodiscard]] glm::mat4 matrix() const
+    [[nodiscard]] auto matrix() const -> glm::mat4
     {
         glm::mat4 m(1.0f);
         m = glm::translate(m, position);
@@ -34,14 +34,14 @@ struct Transform
 
     /// @brief Returns the local right direction vector.
     /// @return Normalized right vector.
-    [[nodiscard]] glm::vec3 right() const
+    [[nodiscard]] auto right() const -> glm::vec3
     {
         return glm::normalize(glm::vec3(matrix()[0]));
     }
 
     /// @brief Returns the local up direction vector.
     /// @return Normalized up vector.
-    [[nodiscard]] glm::vec3 up() const
+    [[nodiscard]] auto up() const -> glm::vec3
     {
         return glm::normalize(glm::vec3(matrix()[1]));
     }
@@ -51,7 +51,7 @@ struct Transform
     /// Forward is defined as -Z (OpenGL convention).
     ///
     /// @return Normalized forward vector.
-    [[nodiscard]] glm::vec3 forward() const
+    [[nodiscard]] auto forward() const -> glm::vec3
     {
         return -glm::normalize(glm::vec3(matrix()[2]));
     }
