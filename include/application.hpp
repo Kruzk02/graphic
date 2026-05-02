@@ -1,9 +1,9 @@
 #pragma once
 
-#include "camera.h"
-#include "mesh.h"
-#include "scene.h"
-#include "window.h"
+#include "camera.hpp"
+#include "mesh.hpp"
+#include "scene.hpp"
+#include "window.hpp"
 
 #define SPEED 5.0f;
 

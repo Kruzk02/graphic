@@ -4,7 +4,7 @@
 
 #include "glad/glad.h"
 #include "glm/ext/vector_float3.hpp"
-#include "layout.h"
+#include "layout.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
 #define MAX_BONE_INFLUENCE 4

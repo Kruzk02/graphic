@@ -1,11 +1,11 @@
-#include "application.h"
+#include "application.hpp"
 
-#include "camera.h"
-#include "layout.h"
-#include "mesh.h"
-#include "model.h"
-#include "shader.h"
-#include "transform.h"
+#include "camera.hpp"
+#include "layout.hpp"
+#include "mesh.hpp"
+#include "model.hpp"
+#include "shader.hpp"
+#include "transform.hpp"
 #include <utility>
 
 namespace RenderDefaults

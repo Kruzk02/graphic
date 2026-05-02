@@ -1,9 +1,9 @@
 #pragma once
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
-#include "material.h"
-#include "mesh.h"
-#include "transform.h"
+#include "material.hpp"
+#include "mesh.hpp"
+#include "transform.hpp"
 #include <string>
 
 struct SubMesh

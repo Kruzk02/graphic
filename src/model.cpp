@@ -1,9 +1,9 @@
-#include "model.h"
+#include "model.hpp"
 #include "assimp/Importer.hpp"
 #include "assimp/mesh.h"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
-#include "mesh.h"
+#include "mesh.hpp"
 #include <vector>
 
 auto Model::loadFromFile(const std::string &path) -> bool

@@ -1,5 +1,5 @@
 #pragma once
-#include "model.h"
+#include "model.hpp"
 #include <vector>
 
 class Scene
