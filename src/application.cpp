@@ -1,6 +1,8 @@
 #include "application.hpp"
 
+#include "GLFW/glfw3.h"
 #include "camera.hpp"
+#include "input.hpp"
 #include "layout.hpp"
 #include "mesh.hpp"
 #include "model.hpp"
@@ -48,6 +50,11 @@ constexpr float FarPlane = 100.0f;
 
 constexpr float ROT_SPEED = glm::radians(90.0f);
 
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) // NOLINT
+{
+    Input::setKey({key, action});
+}
+
 Application::Application(const AppConfig &config)
     : lightingShader({.vertexPath = config.shaderVertex, .fragmentPath = config.shaderFragment}),
       gridShader({.vertexPath = AssetPaths::GridVertex, .fragmentPath = AssetPaths::GridFragment}),
@@ -61,6 +68,7 @@ Application::Application(const AppConfig &config)
     glfwSetWindowUserPointer(nativeWindow, this);
     glfwSetCursorPosCallback(nativeWindow, mouseCallback);
     glfwSetScrollCallback(nativeWindow, scrollCallback);
+    glfwSetKeyCallback(nativeWindow, key_callback);
     glfwSetInputMode(nativeWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_DEPTH_TEST);
@@ -70,16 +78,17 @@ Application::Application(const AppConfig &config)
 void Application::setup()
 {
     Model model;
-
     model.loadFromFile(AssetPaths::BackpackModel);
-
     model.transform.position.y = SceneDefaults::ModelHeightOffset;
 
     scene.addModel(std::move(model));
+
+    Input::init();
 }
 
 void Application::update()
 {
+    Input::update();
     updateDeltaTime();
     processInput();
 }
@@ -122,9 +131,9 @@ void Application::run()
 
     while (!window.shouldClose())
     {
+        glfwPollEvents();
         update();
         render();
-        glfwPollEvents();
         glfwSwapBuffers(window.getNativeWindow());
     }
 }
@@ -174,16 +183,20 @@ void Application::updateDeltaTime()
 void Application::processInput()
 {
     auto *w = window.getNativeWindow();
-    if (glfwGetKey(w, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+
+    if (Input::isActionPressed("Quit"))
         glfwSetWindowShouldClose(w, true);
 
-    if (glfwGetKey(w, GLFW_KEY_W) == GLFW_PRESS)
+    if (Input::isActionHeld("MoveForward"))
         camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
-    if (glfwGetKey(w, GLFW_KEY_S) == GLFW_PRESS)
+
+    if (Input::isActionHeld("MoveBackward"))
         camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
-    if (glfwGetKey(w, GLFW_KEY_A) == GLFW_PRESS)
+
+    if (Input::isActionHeld("MoveLeft"))
         camera.processKeyboard(CameraMovement::LEFT, deltaTime);
-    if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS)
+
+    if (Input::isActionHeld("MoveRight"))
         camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
 }
 
